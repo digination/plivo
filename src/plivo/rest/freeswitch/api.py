@@ -2205,3 +2205,75 @@ class PlivoRestApi(object):
         result = True
         return self.send_response(Success=result, Message=msg)
 
+    @auth_protect
+    def bridge(self):
+        """Creates a bridge between 2 calls given their uuids.
+        In order To bridge two calls, make an HTTP POST request to a
+        resource URI.
+
+        POST Parameters
+        ---------------
+
+        Required Parameters - You must POST the following parameters:
+
+        CallUUID1: Unique Call ID of the first call to bridge.
+		CallUUID2: Unique Call ID of the second call to bridge.
+		
+        """
+	self._rest_inbound_socket.log.debug("RESTAPI Bridge with %s" \
+                                        % str(request.form.items()))
+	msg = ""
+        result = False
+		
+        calluuid1 = get_post_param(request, 'callUUID1')
+	calluuid2 = get_post_param(request, 'callUUID2')
+		
+	if not calluuid1 or not calluuid2:
+            msg = "CallUUID Parameter Missing"
+            return self.send_response(Success=result, Message=msg)
+		
+	cmd = "uuid_bridge %s %s" % (calluuid1,calluuid2)
+	res = self._rest_inbound_socket.bgapi(cmd)
+        job_uuid = res.get_job_uuid()
+        if not job_uuid:
+            self._rest_inbound_socket.log.error("Calls bridging failed -- JobUUID not received" % job_uuid)
+            msg = "Bridging failed"
+            return self.send_response(Success=result, Message=msg)
+
+        msg = "Bridge executed"
+        result = True
+        return self.send_response(Success=result, Message=msg)
+	
+    @auth_protect
+    def command_exec(self):
+	"""Executes an arbitrary command through Event Socket
+
+        POST Parameters
+        ---------------
+
+        Required Parameters - You must POST the following parameters:
+
+        command: the command string with its arguments.
+        """
+	self._rest_inbound_socket.log.debug("RESTAPI Command with %s" \
+                                        % str(request.form.items()))
+	msg = ""
+        result = False
+		
+        cmd = get_post_param(request, 'command')
+
+	if not cmd:
+            msg = "command Parameter Missing"
+            return self.send_response(Success=result, Message=msg)
+		
+	res = self._rest_inbound_socket.bgapi(cmd)
+        job_uuid = res.get_job_uuid()
+        if not job_uuid:
+            self._rest_inbound_socket.log.error("command '%s' failed -- JobUUID not received" % (cmd,job_uuid))
+            msg = "Command failed"
+            return self.send_response(Success=result, Message=msg)
+
+        msg = "Command executed"
+        result = True
+        return self.send_response(Success=result, Message=msg)
+		

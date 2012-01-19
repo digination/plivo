@@ -82,4 +82,8 @@ URLS = {
         '/' + PLIVO_VERSION + '/ConferenceListMembers/': (PlivoRestApi.conference_list_members, ['POST']),
         # API to list all conferences with members
         '/' + PLIVO_VERSION + '/ConferenceList/': (PlivoRestApi.conference_list, ['POST']),
+		 # API to execute a raw ESL command
+        '/' + PLIVO_VERSION + '/Command/': (PlivoRestApi.command_exec, ['POST']),
+		# API to create a bridge between two calls given their uuids
+        '/' + PLIVO_VERSION + '/Bridge/': (PlivoRestApi.bridge, ['POST']),
        }

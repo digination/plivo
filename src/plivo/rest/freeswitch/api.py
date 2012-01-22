@@ -2254,6 +2254,7 @@ class PlivoRestApi(object):
         Required Parameters - You must POST the following parameters:
 
         command: the command string with its arguments.
+        bg: tells if the command must in run through bgapi or not 
         """
 	self._rest_inbound_socket.log.debug("RESTAPI Command with %s" \
                                         % str(request.form.items()))
@@ -2261,19 +2262,93 @@ class PlivoRestApi(object):
         result = False
 		
         cmd = get_post_param(request, 'command')
+        bg = get_post_param(request, 'command')
 
 	if not cmd:
             msg = "command Parameter Missing"
             return self.send_response(Success=result, Message=msg)
-		
-	res = self._rest_inbound_socket.bgapi(cmd)
-        job_uuid = res.get_job_uuid()
-        if not job_uuid:
-            self._rest_inbound_socket.log.error("command '%s' failed -- JobUUID not received" % (cmd,job_uuid))
-            msg = "Command failed"
+        if not bg:
+            msg = "command Parameter Missing"
             return self.send_response(Success=result, Message=msg)
 
-        msg = "Command executed"
+
+        if (bg == "true"):
+
+	   res = self._rest_inbound_socket.bgapi(cmd)
+           job_uuid = res.get_job_uuid()
+           if not job_uuid:
+               self._rest_inbound_socket.log.error("command '%s' failed -- JobUUID not received" % (cmd,job_uuid))
+               msg = "Command failed"
+               return self.send_response(Success=result, Message=msg)
+
+           msg = job_uuid
+           result = True
+           return self.send_response(Success=result, Message=msg)
+
+        else:
+           res = self._rest_inbound_socket.api(cmd)
+           msg = res.get_response()
+           result = True
+           return self.send_response(Success=result, Message=msg)
+
+
+    @auth_protect
+    def get_var(self):
+	"""Get Contextual variables given UUID
+
+        POST Parameters
+        ---------------
+
+        Required Parameters - You must POST the following parameters:
+
+        UUID: the call/bridge uuid
+        varName: name of the variable to retrieve 
+        """
+	self._rest_inbound_socket.log.debug("RESTAPI Command with %s" \
+                                        % str(request.form.items()))
+	msg = ""
+        result = False
+		
+        uuid = get_post_param(request, 'UUID')
+        var_name = get_post_param(request, 'varName')
+
+	if not uuid:
+            msg = "UUID Parameter Missing"
+            return self.send_response(Success=result, Message=msg)
+        if not var_name:
+            msg = "varName Parameter Missing"
+            return self.send_response(Success=result, Message=msg)
+
+        cmd="uuid_getvar %s %s" % (uuid,var_name)
+	res = self._rest_inbound_socket.api(cmd)
+        #job_uuid = res.get_job_uuid()
+        #if not job_uuid:
+            #self._rest_inbound_socket.log.error("command '%s' failed -- JobUUID not received" % (cmd,job_uuid))
+            #msg = "Command failed"
+            #return self.send_response(Success=result, Message=msg)
+
+        msg = res.get_response()
         result = True
         return self.send_response(Success=result, Message=msg)
-		
+
+    @auth_protect
+    def create_uuid(self):
+	"""Creates and return an uuid
+
+        POST Parameters
+        ---------------
+
+        Required Parameters - You must POST the following parameters:
+        None
+        """
+	self._rest_inbound_socket.log.debug("RESTAPI Command with %s" \
+                                        % str(request.form.items()))
+	msg = ""
+        result = False
+
+        cmd="create_uuid"
+	res = self._rest_inbound_socket.api(cmd)
+        msg = res.get_response()
+        result = True
+        return self.send_response(Success=result, Message=msg)
+

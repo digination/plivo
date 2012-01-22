@@ -2262,7 +2262,7 @@ class PlivoRestApi(object):
         result = False
 		
         cmd = get_post_param(request, 'command')
-        bg = get_post_param(request, 'command')
+        bg = get_post_param(request, 'bg')
 
 	if not cmd:
             msg = "command Parameter Missing"

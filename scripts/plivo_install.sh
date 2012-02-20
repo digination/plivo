@@ -5,8 +5,8 @@
 # Copyright (c) 2011 Plivo Team. See LICENSE for details.
 
 
-PLIVO_GIT_REPO=git://github.com/plivo/plivo.git
-PLIVO_SETUP_SCRIPT=https://github.com/plivo/plivo/raw/master/scripts/ez_setup.py
+PLIVO_GIT_REPO=git://github.com/digination/plivo.git
+PLIVO_SETUP_SCRIPT=https://github.com/digination/plivo/raw/master/scripts/ez_setup.py
 
 
 BRANCH=$2
